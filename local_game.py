@@ -26,18 +26,19 @@ class OneGame:
 		[[locations.append([i, j]) for i in range(j % 2, 8, 2)] for j in range(8)]
 		a, b = random.choices(locations, k=2)
 
-		local_map = np.ones((self.size, self.size)) # Генерация двумерного массива из единиц
-		local_map[a[0]][a[1]] = 4 # Меняем одного игрока на 4
-		local_map[b[0]][b[1]] = 5 # Другого игрока
+		local_map = np.ones((self.size, self.size))  # Генерация двумерного массива из единиц
+		local_map[a[0]][a[1]] = 4  # Меняем одного игрока на 4
+		local_map[b[0]][b[1]] = 5  # Другого игрока
 		return np.ravel(np.pad(local_map, pad_width=1, mode="constant", constant_values=-1))
-		# Добавляет рамку и переводит двумерку в строчку
+
+	# Добавляет рамку и переводит двумерку в строчку
 
 	def check_status(self, loc: int):
-		local_map = self.history[-1] # для удобства сделал переменную-ссылку
+		local_map = self.history[-1]  # для удобства сделал переменную-ссылку
 		# -11 это на ряд выше и на один влево. 9 - вправо. Аналогично с +, только вниз
 		# -1 это стена, -3 это соперник.
-		if local_map[loc-11] in [-1, -3] or local_map[loc-9] in [-1, -3] or \
-			local_map[loc+11] in [-1, -3] or local_map[loc+9] in [-1, -3]:
+		if local_map[loc - 11] in [-1, -3] or local_map[loc - 9] in [-1, -3] or \
+			local_map[loc + 11] in [-1, -3] or local_map[loc + 9] in [-1, -3]:
 			return True
 		else:
 			return False
@@ -47,23 +48,22 @@ class OneGame:
 		pass
 
 	def make_step(self, element):
-		local_map = self.history[-1].copy() # Делаем локальную копию
-		local_map[local_map == 4] = -2 if element == 4 else -3 # Заменяем игрока "4" на -2, либо на -3, если это враг.
-		local_map[local_map == 5] = -2 if element == 5 else -3 # Наоборот.
-		now_location = np.argwhere(local_map == -2)[0] # Получаем координату "нас"
+		local_map = self.history[-1].copy()  # Делаем локальную копию
+		local_map[local_map == 4] = -2 if element == 4 else -3  # Заменяем игрока "4" на -2, либо на -3, если это враг.
+		local_map[local_map == 5] = -2 if element == 5 else -3  # Наоборот.
+		now_location = np.argwhere(local_map == -2)[0]  # Получаем координату "нас"
 		way = self.models[-1].predict(local_map)  # Делаем предсказание
 		# np.append(np.ravel(self.history[-1]), element)
-		best_rule = way.index(max(way)) # Получаем индекс максимально-вероятного направления
+		best_rule = way.index(max(way))  # Получаем индекс максимально-вероятного направления
 		# 0 - лево верх 1 - право верх
 		# 3 - лево низ  2 - право низ
 
-		if self.check_status(now_location): # если есть куда идти
-			local_map[now_location + {0:-11, 1:-9, 2:+11, 3:+9}[best_rule] ] = element # Перемещаем игрока
+		if self.check_status(now_location):  # если есть куда идти
+			local_map[now_location + {0: -11, 1: -9, 2: +11, 3: +9}[best_rule]] = element  # Перемещаем игрока
 			# Но надо добавить проверку на свободу конкретно по направлению, а не в целом
-			local_map[now_location] = -1 # заменяем старую на стену
+			local_map[now_location] = -1  # заменяем старую на стену
 		else:
 			pass  # Тут мы ругаем нейроночку и говорим об окончании игры
-
 
 
 Game = OneGame()
