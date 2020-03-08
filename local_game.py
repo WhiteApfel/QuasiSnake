@@ -53,6 +53,7 @@ class OneGame:
 				self.make_step(4)
 			else:
 				self.make_step(5)
+			i -= -1
 		print(f"Победил игрок {i % 2}")  # Тут мог накосячить и надо сделать (i+1) % 2
 
 	def bdsm(self, loc):
@@ -104,4 +105,8 @@ def visual(maps):
 
 
 Game = OneGame()
+maps = Game.history_map
+while len(maps) < 5:
+	Game = OneGame()
+	maps = Game.history_map
 visual(Game.history_map)
