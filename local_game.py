@@ -87,6 +87,9 @@ class OneGame:
 			local_map[now_location + {0: -11, 1: -9, 2: +11, 3: +9}[best_rule]] = element  # Перемещаем игрока
 			# Но надо добавить проверку на свободу конкретно по направлению, а не в целом
 			local_map[now_location] = -1  # заменяем старую на стену
+
+			local_map[local_map == -2] = 4 if element == 4 else 5
+			local_map[local_map == -3] = 4 if element == 5 else 5
 			self.history_map.append(local_map)
 		else:
 			self.bdsm(now_location)
@@ -94,5 +97,10 @@ class OneGame:
 			pass  # Тут мы ругаем нейроночку и говорим об окончании игры
 
 
+def visual(maps):
+	for onemap in maps:
+		np.reshape(onemap, (10, 10))
+		print(np.reshape(onemap, (10, 10)))
+
 Game = OneGame()
-print(Game.history_map)
+visual(Game.history_map)
