@@ -102,5 +102,6 @@ def visual(maps):
 		np.reshape(onemap, (10, 10))
 		print(np.reshape(onemap, (10, 10)))
 
+
 Game = OneGame()
 visual(Game.history_map)
