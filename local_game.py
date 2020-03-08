@@ -12,6 +12,7 @@ class OneGame:
 
 	def __init__(self, size=8):
 		self.size = size
+		self.next = True
 
 		model = Sequential()
 		model.add(Dense(12, input_dim=(self.size + 2) ** 2, activation='relu'))
@@ -26,8 +27,8 @@ class OneGame:
 
 	def create_map(self):
 		locations = []
-		[[locations.append([i, j]) for i in range(j % 2, 8, 2)] for j in range(8)] # Генерирует "черные" клетки
-		a, b = random.choices(locations, k=2) # Выбор двух случайных разных
+		[[locations.append([i, j]) for i in range(j % 2, 8, 2)] for j in range(8)]  # Генерирует "черные" клетки
+		a, b = random.choices(locations, k=2)  # Выбор двух случайных разных
 
 		local_map = np.ones((self.size, self.size))  # Генерация двумерного массива из единиц
 		local_map[a[0]][a[1]] = 4  # Меняем одного игрока на 4
@@ -46,15 +47,22 @@ class OneGame:
 		return to_return
 
 	def start_game(self):
-		# Тут надо сделать последовательный запуск self.make_step(element) для двух элементов и так далее.
-		pass
+		i = 0
+		while self.next:  # Пока никто не оказался в тупике поочередно играем
+			if i % 2 == 0:
+				self.make_step(4)
+			else:
+				self.make_step(5)
+		print(f"Победил игрок {i % 2}")  # Тут мог накосячить и надо сделать (i+1) % 2
 
 	def bdsm(self, loc):
-		self.history_map = deque([self.history_map[0]], maxlen=6)
-		self.models = deque([self.models[0]], maxlen=6)
-		self.models[0].fit(np.array([self.check_status(loc)]))
+		# self.history_map = deque([self.history_map[0]], maxlen=6)
+		# self.models = deque([self.models[0]], maxlen=6)
+		self.models[-1].fit(np.array([self.history_map[-1]]),np.array([self.check_status(loc)]))
+		# надо переделать систему наказаний, это для общего представления сделано
 		pass
-		# функция для удаления всех моделей и карт, кроме первых. "Наказывает" нейронку
+
+	# функция для удаления всех моделей и карт, кроме первых. "Наказывает" нейронку
 
 	def gingerbread(self):
 		# должна хвалить модель
@@ -65,20 +73,21 @@ class OneGame:
 		local_map[local_map == 4] = -2 if element == 4 else -3  # Заменяем игрока "4" на -2, либо на -3, если это враг.
 		local_map[local_map == 5] = -2 if element == 5 else -3  # Наоборот.
 		now_location = np.argwhere(local_map == -2)[0]  # Получаем координату "нас"
-		way = self.models[-1].predict(local_map)  # Делаем предсказание
+		way = self.models[-1].predict(np.array([local_map]))[0]  # Делаем предсказание
 		# np.append(np.ravel(self.history[-1]), element)
-		best_rule = way.index(max(way))  # Получаем индекс максимально-вероятного направления
+		best_rule = way.tolist().index(max(way.tolist()))  # Получаем индекс максимально-вероятного направления
 		# 0 - лево верх 1 - право верх
 		# 3 - лево низ  2 - право низ
 
-		if self.check_status(now_location):  # если есть куда идти
+		if self.check_status(now_location) != [0, 0, 0, 0]:  # если есть куда идти
 			local_map[now_location + {0: -11, 1: -9, 2: +11, 3: +9}[best_rule]] = element  # Перемещаем игрока
 			# Но надо добавить проверку на свободу конкретно по направлению, а не в целом
 			local_map[now_location] = -1  # заменяем старую на стену
 		else:
 			self.bdsm(now_location)
+			self.next = False
 			pass  # Тут мы ругаем нейроночку и говорим об окончании игры
 
 
 Game = OneGame()
-print(Game.history_map[0])
+print(Game.history_map)
