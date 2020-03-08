@@ -43,7 +43,7 @@ class OneGame:
 		# -1 это стена, -3 это соперник.
 		to_return = []
 		for i in [-11, -9, 11, 9]:
-			to_return.append(int(local_map[loc + i] in [-1, -3]))
+			to_return.append(int(local_map[loc + i] not in [-1, -3]))
 		return to_return
 
 	def start_game(self):
@@ -58,7 +58,8 @@ class OneGame:
 	def bdsm(self, loc):
 		# self.history_map = deque([self.history_map[0]], maxlen=6)
 		# self.models = deque([self.models[0]], maxlen=6)
-		self.models[-1].fit(np.array([self.history_map[-1]]),np.array([self.check_status(loc)]))
+		self.models.append(deepcopy(self.models[-1]))
+		self.models[-1].fit(np.array([self.history_map[-1]]), np.array([self.check_status(loc)]))
 		# надо переделать систему наказаний, это для общего представления сделано
 		pass
 
@@ -69,7 +70,7 @@ class OneGame:
 		pass
 
 	def make_step(self, element):
-		local_map = self.history_map[-1].copy()  # Делаем локальную копию
+		local_map = deepcopy(self.history_map[-1])  # Делаем локальную копию
 		local_map[local_map == 4] = -2 if element == 4 else -3  # Заменяем игрока "4" на -2, либо на -3, если это враг.
 		local_map[local_map == 5] = -2 if element == 5 else -3  # Наоборот.
 		now_location = np.argwhere(local_map == -2)[0]  # Получаем координату "нас"
@@ -79,10 +80,14 @@ class OneGame:
 		# 0 - лево верх 1 - право верх
 		# 3 - лево низ  2 - право низ
 
-		if self.check_status(now_location) != [0, 0, 0, 0]:  # если есть куда идти
+		# Надо переделать логику этого блока. Разделить на тупик и просто на шаг не туда
+		if (self.check_status(now_location) != [0, 0, 0, 0]) and \
+				(local_map[now_location + {0: -11, 1: -9, 2: +11, 3: +9}[best_rule]] not in [-1, -3]):
+
 			local_map[now_location + {0: -11, 1: -9, 2: +11, 3: +9}[best_rule]] = element  # Перемещаем игрока
 			# Но надо добавить проверку на свободу конкретно по направлению, а не в целом
 			local_map[now_location] = -1  # заменяем старую на стену
+			self.history_map.append(local_map)
 		else:
 			self.bdsm(now_location)
 			self.next = False
