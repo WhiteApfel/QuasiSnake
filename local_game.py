@@ -26,7 +26,7 @@ class OneGame:
 		self.model = deepcopy(model)
 		self.models = deque([model], maxlen=6)
 		self.history_map = deque(self.base_map, maxlen=32)
-		for _ in range(2000000):
+		for _ in range(2000):
 			self.start_game()
 
 
@@ -119,9 +119,7 @@ def visual(maps):
 
 
 plt.ion()
-Map = MapC()
-Game = OneGame(MapC)
-Game2 = OneGame2(MapC)
+Game = OneGame()
 maps = Game.history_map
 while len(maps) < 5:
 	Game = OneGame()
