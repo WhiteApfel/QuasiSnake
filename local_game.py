@@ -29,6 +29,7 @@ class OneGame:
 		for _ in range(2000000):
 			self.start_game()
 
+
 	def create_map(self):
 		locations = []
 		[[locations.append([i, j]) for i in range(j % 2, 8, 2)] for j in range(8)]  # Генерирует "черные" клетки
@@ -118,7 +119,9 @@ def visual(maps):
 
 
 plt.ion()
-Game = OneGame()
+Map = MapC()
+Game = OneGame(MapC)
+Game2 = OneGame2(MapC)
 maps = Game.history_map
 while len(maps) < 5:
 	Game = OneGame()
