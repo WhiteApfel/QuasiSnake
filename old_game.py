@@ -32,7 +32,7 @@ class OneGame:
 
 	def create_map(self):
 		locations = []
-		[[locations.append([i, j]) for i in range(j % 2, 8, 2)] for j in range(8)]  # Генерирует "черные" клетки
+		[[locations.append([i, j]) for i in range(j % 2, self.size, 2)] for j in range(self.size)]  # Генерирует "черные" клетки
 		a, b = 1, 1
 		while a == b:
 			a, b = random.choices(locations, k=2)  # Выбор двух случайных разных
@@ -100,7 +100,7 @@ class OneGame:
 
 			local_map[local_map == -2] = 4 if element == 4 else 5
 			local_map[local_map == -3] = 4 if element == 5 else 5
-			plt.imshow(np.reshape(local_map, (10, 10)), cmap='hot', interpolation='nearest')
+			plt.imshow(np.reshape(local_map, (self.size+2, self.size+2)), cmap='hot', interpolation='nearest')
 			plt.show()
 			plt.pause(0.0001)
 			plt.clf()
@@ -119,7 +119,7 @@ def visual(maps):
 
 
 plt.ion()
-Game = OneGame()
+Game = OneGame(size=10)
 maps = Game.history_map
 while len(maps) < 5:
 	Game = OneGame()
