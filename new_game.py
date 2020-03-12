@@ -25,13 +25,22 @@ class MapController:
 		self.coordinatesGay = (0, 0)
 		self.coordinatesStraight = (0, 0)
 
+
+	def start_loop(self):
+		while self.EstLiZhiznNaZemle:
+			continue
+			#__ Надо запускать карту
+		pass
+
 	def viewer(self, local_map):
+		"""Показывает наглядно, что происходит"""
 		plt.imshow(local_map, cmap='hot', interpolation='nearest')
 		plt.show()
 		plt.pause(0.0001)
 		plt.clf()
 
 	def map_compression(self):
+		"""Убирает ненужные диагонали, оставляя чистую и понятную для нейронки карту"""
 		CMap = list()
 		for y in range(0, len(self.map_history[-1]), 2):
 			for x in range(0, len(self.map_history[-1]), 2):
@@ -39,6 +48,7 @@ class MapController:
 		return CMap
 
 	def gen_map(self):
+		"""Генерирует полноценную карту в формате двумерного массива"""
 		locations = []
 		[[locations.append([i, j]) for i in range(j % 2, self.size, 2)] for j in
 		 range(self.size)]  # Генерирует "черные" клетки
@@ -51,43 +61,38 @@ class MapController:
 		local_map[b[0]][b[1]] = 11  # Другого игрока на 11
 		self.map_history.append(local_map)
 
-	def compress_map(self):
-		local_map = deepcopy(self.map_history[-1])
-		compressed = []
-		for i, in range(self.size):
-			compressed.append([local_map[j] for j in range(i % 2, self.size+2, 2)])
-		return compressed
-
 	def make_step(self):
-		newMap = deepcopy(self.map_history[-1])
+		new_map = deepcopy(self.map_history[-1])
 
-		self.viewer(newMap)
+		self.viewer(new_map)
 
 		# step gay
-		newMap[self.coordinatesGay[0]][self.coordinatesGay[1]] = -1
+		new_map[self.coordinatesGay[0]][self.coordinatesGay[1]] = -1
 		coordinatesMoving = self.GamerGay.get_step(self.compression_map())
 		self.coordinatesGay = (
 			self.coordinatesGay[0] + coordinatesMoving[0], self.coordinatesGay[1] + coordinatesMoving[1])
-		newMap[self.coordinatesGay[0], self.coordinatesGay[1]] = 10
+		new_map[self.coordinatesGay[0], self.coordinatesGay[1]] = 10
 
-		self.viewer(newMap)
+		self.viewer(new_map)
 
 		# step straight
-		newMap[self.coordinatesStraight[0]][self.coordinatesStraight[1]] = -1
+		new_map[self.coordinatesStraight[0]][self.coordinatesStraight[1]] = -1
 		coordinatesMoving = self.GamerStraight.get_step(self.compression_map())
 		self.coordinatesStraight = (
 			self.coordinatesStraight[0] + coordinatesMoving[0], self.coordinatesStraight[1] + coordinatesMoving[1])
-		newMap[self.coordinatesStraight[0], self.coordinatesStraight[1]] = 11
+		new_map[self.coordinatesStraight[0], self.coordinatesStraight[1]] = 11
 
-		self.viewer(newMap)
+		self.viewer(new_map)
 
-		self.map_history.append(newMap)
+		self.map_history.append(new_map)
 
 	def get_available_step(self, who):
+		#__ Надо доделать зачем-то
 		a = self.map_history[-1][0]
 		return a * 2 if who == -10 else a * 3
 
 	def update_map_info(self):
+		#__ Соответственно, тоже
 		self.available_a = self.get_available_step(-10)
 		self.available_b = self.get_available_step(-11)
 
@@ -98,9 +103,9 @@ class Gamer:
 		self.model = self.create_model()
 		self.step_decode = {1: -5, 2: -4, 3: 4, 4: 3}
 
-	def predict_step(self, map):
-		pred = self.model.predict(map)
-		return pred.index(max(pred))+1
+	def predict_step(self, local_map):
+		pred = self.model.predict(local_map)
+		return pred.index(max(pred)) + 1
 
 	def get_step(self, local_map):
 		step = self.predict_step(local_map)
@@ -115,9 +120,10 @@ class Gamer:
 		model.compile(loss="binary_crossentropy", optimizer="adam", metrics=['accuracy'])  # надо менять
 		return model
 
-	def counter_steps(self, map_array, myIndex):
-		x = myIndex[0]
-		y = myIndex[1]
+	def counter_steps(self, map_array, my_index):
+		#__ Надо доделать код
+		x = my_index[0]
+		y = my_index[1]
 		for i in [(1, 1), (1, -1), (-1, -1), (-1, 1)]:
 			if (map_array[x + i[0]][y + i[1]] == 1):
 				map_array[x + i[0]][y + i[1]] = -1
@@ -125,6 +131,7 @@ class Gamer:
 				self.counter_steps(map_array, [x + i[0], y + i[1]])
 
 	def bdsm(self, map_array, available):
+		#__ Надо доделать наказание
 		self.model.fit(map_array, available)
 
 	def gingerbread(self):
