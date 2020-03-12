@@ -137,7 +137,7 @@ class Gamer:
 		x = my_index[0]
 		y = my_index[1]
 		for i in [(1, 1), (1, -1), (-1, -1), (-1, 1)]:
-			if (map_array[x + i[0]][y + i[1]] == 1):
+			if map_array[x + i[0]][y + i[1]] == 1:
 				map_array[x + i[0]][y + i[1]] = -1
 				# каунтер надо вернуть
 				self.counter_steps(map_array, [x + i[0], y + i[1]])
