@@ -2,9 +2,9 @@ import random
 import numpy as np
 from collections import deque
 from copy import deepcopy
-import matplotlib.pyplot as plt
-import time
 
+import matplotlib.pyplot as plt
+import numpy as np
 from keras import Sequential
 from keras.layers import Dense
 
@@ -26,6 +26,7 @@ class MapController:
         self.coordinatesStraight = (0, 0)
 
     def start_loop(self):
+        """Запускает непорочный круг шагов. Надеюсь, это когда-нибудь кончится."""
         while self.EstLiZhiznNaZemle:
             continue
         # TODO Надо запускать карту
@@ -130,7 +131,7 @@ class Gamer:
                 self.counter_steps(map_array, [x + i[0], y + i[1]])
 
     def bdsm(self, map_array, available):
-        # TODO Надо доделать наказание
+        #__ Надо доделать наказание
         self.model.fit(map_array, available)
 
     def gingerbread(self):
