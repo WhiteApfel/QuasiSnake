@@ -1,11 +1,13 @@
 from keras import Sequential
 from keras.layers import Dense
+from copy import deepcopy
 
 
 class Gamer:
 	def __init__(self, size):
 		self.size = size
 		self.model = self.create_model()
+		self.counter = 0
 		self.step_decode = {1: [-1, -1], 2: [-1, 1], 3: [1, 1], 4: [1, -1]}
 
 	def predict_step(self, local_map):
@@ -25,15 +27,20 @@ class Gamer:
 		model.compile(loss="binary_crossentropy", optimizer="adam", metrics=['accuracy'])  # надо менять
 		return model
 
-	def counter_steps(self, map_array, my_index):
-		# TODO Надо доделать код
+	def counter_steps(self, map_array, my_index, new=True):
+		if new:
+			self.counter = 0
 		x = my_index[0]
 		y = my_index[1]
 		for i in [(1, 1), (1, -1), (-1, -1), (-1, 1)]:
 			if map_array[x + i[0]][y + i[1]] == 1:
 				map_array[x + i[0]][y + i[1]] = -1
-				# каунтер надо вернуть
-				self.counter_steps(map_array, [x + i[0], y + i[1]])
+				self.counter += 1
+				self.counter_steps(map_array, [x + i[0], y + i[1]], new=False)
+		if new:
+			counter_copy = deepcopy(self.counter)
+			self.counter = 0
+			return counter_copy
 
 	def bdsm(self, map_array, available):
 		# __ Надо доделать наказание

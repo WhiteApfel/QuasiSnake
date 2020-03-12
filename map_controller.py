@@ -3,6 +3,7 @@ from collections import deque
 from copy import deepcopy
 import matplotlib.pyplot as plt
 import numpy as np
+from main import Gamer
 
 
 class MapController:
