@@ -1,12 +1,19 @@
+import time
 from keras import Sequential
 from keras.layers import Dense
 from copy import deepcopy
+import numpy as np
+from keras.models import load_model
 
 
 class Gamer:
 	def __init__(self, size):
 		self.size = size
-		self.model = self.create_model()
+		try:
+			self.model = load_model("model.h5")
+		except Exception as e:
+			print(f"Ошибочка вышла... {e}")
+			self.model = self.create_model()
 		self.counter = 0
 		self.step_decode = {1: [-1, -1], 2: [-1, 1], 3: [1, 1], 4: [1, -1]}
 
@@ -20,7 +27,7 @@ class Gamer:
 		return model
 
 	def predict_step(self, local_map):
-		pred = self.model.predict(local_map)
+		pred = self.model.predict(np.array([local_map])).tolist()[0]
 		return pred.index(max(pred)) + 1
 
 	def get_step(self, local_map) -> list:
@@ -45,10 +52,12 @@ class Gamer:
 	def get_available(self, map_array):
 		to_return = []
 		loc = map_array.index(-2)
-		for i in [-4, -3, 5, 4]:
+		to_check = [-5, -4, 6, 5] if (loc // 10) % 2 == 1 else [-6, -5, 5, 4]
+		for i in to_check:
 			to_return.append(int(map_array[loc + i] not in [-1, -3]))
 		return to_return
 
 	def bdsm(self, map_array):
 		# TODO: Надо доделать наказание
-		self.model.fit(map_array, self.get_available(map_array))
+		self.model.fit(np.array([map_array]), np.array([self.get_available(map_array)]))
+		self.model.save("model.h5")
