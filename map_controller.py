@@ -16,13 +16,11 @@ class MapController:
 		self.step_counter = 0
 		self.available_a = 0
 		self.available_b = 0
-		self.coordinates_gay = (0, 0)
-		self.coordinates_straight = (0, 0)
 		self.est_li_zhizn_na_zemle = None
-
+		self.est_li_zhizn_na_zemle = True
 		# Инициализируем игроков
-		self.GamerGay = Gamer(self.size)
-		self.GamerStraight = Gamer(self.size)
+		self.coordinates = {10: (0,0), 11:(0,0)}
+		self.players = {10: Gamer(self.size), 11:Gamer(self.size)}
 
 	def start_loop(self):
 		"""Запускает непорочный круг шагов. Надеюсь, это когда-нибудь кончится."""
@@ -67,7 +65,7 @@ class MapController:
 
 		self.map_history.append(local_map)
 
-	def make_step(self):
+	def make_step(self, numberPlayer):
 		"""
 		Шагает одним, шагает другим. Если оба игрока пошагали, то обновляет карту в истории.
 		"""
@@ -75,26 +73,17 @@ class MapController:
 
 		new_map = deepcopy(self.map_history[-1])
 
+
+		new_map[self.coordinates[numberPlayer][0]][self.coordinates[numberPlayer][1]] = -1
+		coordinates_moving = self.players[numberPlayer].get_step(self.map_compress())
+		self.coordinates[numberPlayer] = (
+			self.coordinates[numberPlayer][0] + coordinates_moving[0], self.coordinates[numberPlayer][1] + coordinates_moving[1])
+		if  self.map_history[-1][self.coordinates[numberPlayer][0]][self.coordinates[numberPlayer][1]] == -1:
+			self.players[numberPlayer].bdsm()
+			self.est_li_zhizn_na_zemle = False
+			return False
+		new_map[self.coordinates[numberPlayer][0], self.coordinates[numberPlayer][1]] = 10
 		self.viewer(new_map)
-
-		# step gay
-		new_map[self.coordinates_gay[0]][self.coordinates_gay[1]] = -1
-		coordinates_moving = self.GamerGay.get_step(self.map_compress())
-		self.coordinates_gay = (
-			self.coordinates_gay[0] + coordinates_moving[0], self.coordinates_gay[1] + coordinates_moving[1])
-		new_map[self.coordinates_gay[0], self.coordinates_gay[1]] = 10
-
-		self.viewer(new_map)
-
-		# step straight
-		new_map[self.coordinates_straight[0]][self.coordinates_straight[1]] = -1
-		coordinates_moving = self.GamerStraight.get_step(self.map_compress())
-		self.coordinates_straight = (
-			self.coordinates_straight[0] + coordinates_moving[0], self.coordinates_straight[1] + coordinates_moving[1])
-		new_map[self.coordinates_straight[0], self.coordinates_straight[1]] = 11
-
-		self.viewer(new_map)
-
 		self.map_history.append(new_map)
 
 	def get_available_step(self, who):
