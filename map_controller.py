@@ -24,9 +24,10 @@ class MapController:
 
 	def start_loop(self):
 		"""Запускает непорочный круг шагов. Надеюсь, это когда-нибудь кончится."""
+		i = 0
 		while self.est_li_zhizn_na_zemle:
-			continue
-		# TODO Надо запускать карту
+			self.make_step(10 + i % 2)
+			i += 1
 		pass
 
 	def viewer(self, local_map):
@@ -36,7 +37,7 @@ class MapController:
 		plt.pause(0.0001)
 		plt.clf()
 
-	def map_compress(self):
+	def map_compress(self, element):
 		"""
 		Убирает ненужные диагонали, оставляя
 		чистый и понятный нейронке лист значений
@@ -45,6 +46,8 @@ class MapController:
 		for y in range(0, self.size + 2):
 			for x in range(y % 2, self.size + 2, 2):
 				compressed.append(self.map_history[-1][x][y])
+		compressed[compressed.index(10)] = -2 if element == 10 else -3
+		compressed[compressed.index(11)] = -2 if element == 11 else -3
 		return compressed
 
 	def gen_map(self):
@@ -62,27 +65,29 @@ class MapController:
 		local_map = np.ones((self.size, self.size))  # Генерация двумерного массива из единиц
 		local_map[a[0]][a[1]] = 10  # Меняем одного игрока на 10
 		local_map[b[0]][b[1]] = 11  # Другого игрока на 11
-
+		local_map = np.pad(local_map, pad_width=1, mode="constant", constant_values=-1)
 		self.map_history.append(local_map)
 
-	def make_step(self, numberPlayer):
+	def make_step(self, number_player):
 		"""
 		Шагает одним, шагает другим. Если оба игрока пошагали, то обновляет карту в истории.
 		"""
-		# TODO Надо сделать окончание игры, если кто-то из игроков лохонулся.
-
 		new_map = deepcopy(self.map_history[-1])
 
 
-		new_map[self.coordinates[numberPlayer][0]][self.coordinates[numberPlayer][1]] = -1
-		coordinates_moving = self.players[numberPlayer].get_step(self.map_compress())
-		self.coordinates[numberPlayer] = (
-			self.coordinates[numberPlayer][0] + coordinates_moving[0], self.coordinates[numberPlayer][1] + coordinates_moving[1])
-		if  self.map_history[-1][self.coordinates[numberPlayer][0]][self.coordinates[numberPlayer][1]] == -1:
-			self.players[numberPlayer].bdsm()
+		new_map[self.coordinates[number_player][0]][self.coordinates[number_player][1]] = -1
+		coordinates_moving = self.players[number_player].get_step(self.map_compress(number_player))
+
+		self.coordinates[number_player] = (
+			self.coordinates[number_player][0] + coordinates_moving[0],
+			self.coordinates[number_player][1] + coordinates_moving[1])
+
+		if  self.map_history[-1][self.coordinates[number_player][0]][self.coordinates[number_player][1]] == -1:
+			self.players[number_player].bdsm(self.map_compress(number_player))
 			self.est_li_zhizn_na_zemle = False
 			return False
-		new_map[self.coordinates[numberPlayer][0], self.coordinates[numberPlayer][1]] = 10
+
+		new_map[self.coordinates[number_player][0], self.coordinates[number_player][1]] = number_player
 		self.viewer(new_map)
 		self.map_history.append(new_map)
 

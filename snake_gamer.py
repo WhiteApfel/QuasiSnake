@@ -10,14 +10,6 @@ class Gamer:
 		self.counter = 0
 		self.step_decode = {1: [-1, -1], 2: [-1, 1], 3: [1, 1], 4: [1, -1]}
 
-	def predict_step(self, local_map):
-		pred = self.model.predict(local_map)
-		return pred.index(max(pred)) + 1
-
-	def get_step(self, local_map) -> list:
-		step = self.predict_step(local_map)
-		return self.step_decode[step]
-
 	def create_model(self):
 		model = Sequential()
 		model.add(Dense(22, input_dim=(self.size + 2) ** 2 // 2, activation='relu'))
@@ -26,6 +18,14 @@ class Gamer:
 		model.add(Dense(4, activation='sigmoid'))
 		model.compile(loss="binary_crossentropy", optimizer="adam", metrics=['accuracy'])  # надо менять
 		return model
+
+	def predict_step(self, local_map):
+		pred = self.model.predict(local_map)
+		return pred.index(max(pred)) + 1
+
+	def get_step(self, local_map) -> list:
+		step = self.predict_step(local_map)
+		return self.step_decode[step]
 
 	def counter_steps(self, map_array, my_index, new=True):
 		if new:
@@ -42,10 +42,13 @@ class Gamer:
 			self.counter = 0
 			return counter_copy
 
-	def bdsm(self, map_array, available):
-		# __ Надо доделать наказание
-		self.model.fit(map_array, available)
+	def get_available(self, map_array):
+		to_return = []
+		loc = map_array.index(-2)
+		for i in [-4, -3, 5, 4]:
+			to_return.append(int(map_array[loc + i] not in [-1, -3]))
+		return to_return
 
-	def gingerbread(self):
-		# кнут можно без пряника оставаить
-		pass
+	def bdsm(self, map_array):
+		# TODO: Надо доделать наказание
+		self.model.fit(map_array, self.get_available(map_array))
