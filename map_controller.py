@@ -17,7 +17,6 @@ class MapController:
 		self.step_counter = 0
 		self.available_a = 0
 		self.available_b = 0
-		self.est_li_zhizn_na_zemle = None
 		self.est_li_zhizn_na_zemle = True
 		# Инициализируем игроков
 		self.gamer_gay = Gamer(self.size)
@@ -78,7 +77,7 @@ class MapController:
 		"""
 		new_map = deepcopy(self.map_history[-1])
 		self.viewer(new_map)
-
+		self.gamer_gay.bdsm(self.map_compress(number_player))
 		new_map[self.coordinates[number_player][0]][self.coordinates[number_player][1]] = -1
 		coordinates_moving = self.gamer_gay.get_step(self.map_compress(number_player))
 		self.coordinates[number_player] = (
@@ -88,11 +87,10 @@ class MapController:
 		if self.map_history[-1][self.coordinates[number_player][0]][self.coordinates[number_player][1]] in [-1, 10, 11]:
 			self.gamer_gay.bdsm(self.map_compress(number_player))
 			self.est_li_zhizn_na_zemle = False
-			return False
-
-		new_map[self.coordinates[number_player][0], self.coordinates[number_player][1]] = number_player
-		self.viewer(new_map)
-		self.map_history.append(new_map)
+		else:
+			new_map[self.coordinates[number_player][0], self.coordinates[number_player][1]] = number_player
+			self.viewer(new_map)
+			self.map_history.append(new_map)
 
 	def get_available_step(self, who):
 		# TODO Надо доделать зачем-то
