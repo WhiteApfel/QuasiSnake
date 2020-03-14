@@ -1,22 +1,22 @@
-import time
-from keras import Sequential
-from keras.layers import Dense
 from copy import deepcopy
 import numpy as np
+from keras import Sequential
+from keras.layers import Dense
 from keras.models import load_model
 
 
 class Gamer:
-	def __init__(self, size):
+	def __init__(self, size: int):
 		self.size = size
 		try:
 			self.model = load_model("model.h5")
 		except Exception as e:
 			print(f"Ошибочка вышла... {e}")
-			self.model = self.create_model()
+			self.model = self.create_model
 		self.counter = 0
 		self.step_decode = {1: [-1, -1], 2: [-1, 1], 3: [1, 1], 4: [1, -1]}
 
+	@property
 	def create_model(self):
 		model = Sequential()
 		model.add(Dense(22, input_dim=(self.size + 2) ** 2 // 2, activation='relu'))
@@ -49,7 +49,8 @@ class Gamer:
 			self.counter = 0
 			return counter_copy
 
-	def get_available(self, map_array):
+	@staticmethod
+	def get_available(map_array):
 		to_return = []
 		loc = map_array.index(-2)
 		to_check = [-5, -4, 6, 5] if (loc // 10) % 2 == 1 else [-6, -5, 5, 4]

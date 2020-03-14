@@ -10,7 +10,7 @@ from snake_gamer import Gamer
 class MapController:
 
 	def __init__(self, size):
-		plt.ion()  # важная штука для динамических графиков
+		plt.ion()  # для динамических графиков
 		self.map_history = deque([], maxlen=32)  # переполняемый лист
 		self.size = size
 		self.gen_map()
@@ -32,7 +32,8 @@ class MapController:
 			self.est_li_zhizn_na_zemle = True
 		pass
 
-	def viewer(self, local_map):
+	@staticmethod
+	def viewer(local_map):
 		"""Показывает наглядно, что происходит. Спасибо тепловым картам"""
 		plt.imshow(local_map, cmap='gnuplot2_r', interpolation='nearest')
 		plt.show()
@@ -65,8 +66,8 @@ class MapController:
 			a, b = random.choices(locations, k=2)  # Выбор двух случайных разных
 
 		local_map = np.ones((self.size, self.size))  # Генерация двумерного массива из единиц
-		local_map[a[0]][a[1]] = 10  # Меняем одного игрока на 10
-		local_map[b[0]][b[1]] = 11  # Другого игрока на 11
+		local_map[a[0]][a[1]] = 10
+		local_map[b[0]][b[1]] = 11
 		local_map = np.pad(local_map, pad_width=1, mode="constant", constant_values=-1)
 		self.coordinates = {10: (a[0] + 1, a[1] + 1), 11: (b[0] + 1, b[1] + 1)}
 		self.map_history.append(local_map)
