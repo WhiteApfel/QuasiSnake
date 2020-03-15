@@ -19,9 +19,10 @@ class Gamer:
 	@property
 	def create_model(self):
 		model = Sequential()
-		model.add(Dense(2222, input_dim=(self.size + 2) ** 2 // 2, activation='relu'))
-		model.add(Dense(1222, activation='relu'))
-		model.add(Dense(222, activation='relu'))
+		model.add(Dense(222, input_dim=(self.size + 2) ** 2 // 2, activation='relu'))
+		model.add(Dense(122, activation='relu'))
+		model.add(Dense(44, activation='relu'))
+		model.add(Dense(22, activation='relu'))
 		model.add(Dense(4, activation='sigmoid'))
 		model.compile(loss="binary_crossentropy", optimizer="adam", metrics=['accuracy'])  # надо менять
 		return model
@@ -60,5 +61,7 @@ class Gamer:
 
 	def bdsm(self, map_array):
 		# TODO: Надо доделать наказание
-		self.model.fit(np.array([map_array]), np.array([self.get_available(map_array)]))
+		df = np.array([map_array])
+		av = np.array([self.get_available(map_array)])
+		self.model.fit(df, av)
 		self.model.save("model.h5")
