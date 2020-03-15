@@ -1,3 +1,7 @@
+import os
+
+os.system("pip install -U --user numpy multiprocessing matplotlib copy")
+
 import random
 from collections import deque
 from copy import deepcopy
@@ -11,7 +15,7 @@ class MapController:
 
 	def __init__(self, size):
 		plt.ion()  # для динамических графиков
-		self.map_history = deque([], maxlen=32)  # переполняемый лист
+		self.map_history = deque([], maxlen=12)  # переполняемый лист
 		self.size = size
 		self.gen_map()
 		self.step_counter = 0
@@ -28,6 +32,7 @@ class MapController:
 			while self.est_li_zhizn_na_zemle:
 				self.make_step(10 + i % 2)
 				i += 1
+				i = i % 2
 			self.gen_map()
 			self.est_li_zhizn_na_zemle = True
 		pass
