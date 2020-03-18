@@ -3,8 +3,14 @@ from multiprocessing import Process, cpu_count
 
 
 def start_game():
-	MC = MapController(8)
-	MC.start_loop()
+	try:
+		MC = MapController(8)
+		print("Запустилось...")
+		MC.start_loop()
+	except Exception as e:
+		print(e)
+		start_game()
+
 
 
 p = []
