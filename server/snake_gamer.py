@@ -61,7 +61,9 @@ class Gamer:
 
 	def bdsm(self, map_array):
 		# TODO: Надо доделать наказание
-		df = np.array([map_array])
-		av = np.array([self.get_available(map_array)])
-		self.model.fit(df, av)
-		self.model.save("model.h5")
+		self.model.fit(np.array([map_array]), np.array([self.get_available(map_array)]))
+		self.counter += 1
+		if self.counter == 300:
+			print("Модель сохранена")
+			self.model.save("model.h5")
+			self.counter = 0

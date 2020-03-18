@@ -42,7 +42,7 @@ class MapController:
 		"""Показывает наглядно, что происходит. Спасибо тепловым картам"""
 		plt.imshow(local_map, cmap='gnuplot2_r', interpolation='nearest')
 		plt.show()
-		plt.pause(0.0001)
+		plt.pause(0.1)
 		plt.clf()
 
 	def map_compress(self, element):
@@ -82,7 +82,7 @@ class MapController:
 		Шагает одним, шагает другим. Если оба игрока пошагали, то обновляет карту в истории.
 		"""
 		new_map = deepcopy(self.map_history[-1])
-		self.viewer(new_map)
+		# self.viewer(new_map)
 		self.gamer_gay.bdsm(self.map_compress(number_player))
 		new_map[self.coordinates[number_player][0]][self.coordinates[number_player][1]] = -1
 		coordinates_moving = self.gamer_gay.get_step(self.map_compress(number_player))
@@ -95,7 +95,7 @@ class MapController:
 			self.est_li_zhizn_na_zemle = False
 		else:
 			new_map[self.coordinates[number_player][0], self.coordinates[number_player][1]] = number_player
-			self.viewer(new_map)
+			# self.viewer(new_map)
 			self.map_history.append(new_map)
 
 	def get_available_step(self, who):
