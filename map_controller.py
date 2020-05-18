@@ -17,6 +17,7 @@ class MapController:
 		self.step_counter = 0
 		self.available_a = 0
 		self.available_b = 0
+		self.coordinates = {10: [0, 0]}
 		self.est_li_zhizn_na_zemle = True
 		# Инициализируем игроков
 		self.gamer_gay = Gamer(self.size)
@@ -26,8 +27,7 @@ class MapController:
 		i = 0
 		while True:
 			while self.est_li_zhizn_na_zemle:
-				self.make_step(10 + i % 2)
-				i += 1
+				self.make_step(10)
 			self.gen_map()
 			self.est_li_zhizn_na_zemle = True
 		pass
@@ -50,7 +50,6 @@ class MapController:
 			for x in range(y % 2, self.size + 2, 2):
 				compressed.append(self.map_history[-1][x][y])
 		compressed[compressed.index(10)] = -2 if element == 10 else -3
-		compressed[compressed.index(11)] = -2 if element == 11 else -3
 		return compressed
 
 	def gen_map(self):
@@ -61,15 +60,11 @@ class MapController:
 		locations = []
 		[[locations.append([i, j]) for i in range(j % 2, self.size, 2)] for j in
 			range(self.size)]  # Выбирает клетки одной диагональной системы
-		a, b = [0, 0], [0, 0]  # Вспомогательный шаг
-		while a == b:
-			a, b = random.choices(locations, k=2)  # Выбор двух случайных разных
-
+		a = random.choice(locations)  # Выбор двух случайных разных
 		local_map = np.ones((self.size, self.size))  # Генерация двумерного массива из единиц
 		local_map[a[0]][a[1]] = 10
-		local_map[b[0]][b[1]] = 11
 		local_map = np.pad(local_map, pad_width=1, mode="constant", constant_values=-1)
-		self.coordinates = {10: (a[0] + 1, a[1] + 1), 11: (b[0] + 1, b[1] + 1)}
+		self.coordinates = {10: (a[0] + 1, a[1] + 1)}
 		self.map_history.append(local_map)
 
 	def make_step(self, number_player):
@@ -81,9 +76,9 @@ class MapController:
 		self.gamer_gay.bdsm(self.map_compress(number_player))
 		new_map[self.coordinates[number_player][0]][self.coordinates[number_player][1]] = -1
 		coordinates_moving = self.gamer_gay.get_step(self.map_compress(number_player))
-		self.coordinates[number_player] = (
+		self.coordinates[number_player] = [
 			self.coordinates[number_player][0] + coordinates_moving[0],
-			self.coordinates[number_player][1] + coordinates_moving[1])
+			self.coordinates[number_player][1] + coordinates_moving[1]]
 
 		if self.map_history[-1][self.coordinates[number_player][0]][self.coordinates[number_player][1]] in [-1, 10, 11]:
 			self.gamer_gay.bdsm(self.map_compress(number_player))
