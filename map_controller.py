@@ -37,7 +37,7 @@ class MapController:
 		"""Показывает наглядно, что происходит. Спасибо тепловым картам"""
 		plt.imshow(local_map, cmap='gnuplot2_r', interpolation='nearest')
 		plt.show()
-		plt.pause(0.0001)
+		plt.pause(0.01)
 		plt.clf()
 
 	def map_compress(self, element):
@@ -49,7 +49,7 @@ class MapController:
 		for y in range(0, self.size + 2):
 			for x in range(y % 2, self.size + 2, 2):
 				compressed.append(self.map_history[-1][x][y])
-		compressed[compressed.index(10)] = -2 if element == 10 else -3
+		compressed[compressed.index(10)] = -2
 		return compressed
 
 	def gen_map(self):
@@ -60,7 +60,7 @@ class MapController:
 		locations = []
 		[[locations.append([i, j]) for i in range(j % 2, self.size, 2)] for j in
 			range(self.size)]  # Выбирает клетки одной диагональной системы
-		a = random.choice(locations)  # Выбор двух случайных разных
+		a = random.choice(locations)
 		local_map = np.ones((self.size, self.size))  # Генерация двумерного массива из единиц
 		local_map[a[0]][a[1]] = 10
 		local_map = np.pad(local_map, pad_width=1, mode="constant", constant_values=-1)
@@ -72,17 +72,17 @@ class MapController:
 		Шагает одним, шагает другим. Если оба игрока пошагали, то обновляет карту в истории.
 		"""
 		new_map = deepcopy(self.map_history[-1])
+		print(new_map)
 		self.viewer(new_map)
-		self.gamer_gay.bdsm(self.map_compress(number_player))
 		new_map[self.coordinates[number_player][0]][self.coordinates[number_player][1]] = -1
-		coordinates_moving = self.gamer_gay.get_step(self.map_compress(number_player))
+		coordinates_moving = self.gamer_gay.get_step(self.map_compress(new_map))
 		self.coordinates[number_player] = [
 			self.coordinates[number_player][0] + coordinates_moving[0],
 			self.coordinates[number_player][1] + coordinates_moving[1]]
 
-		if self.map_history[-1][self.coordinates[number_player][0]][self.coordinates[number_player][1]] in [-1, 10, 11]:
-			self.gamer_gay.bdsm(self.map_compress(number_player))
+		if self.map_history[-1][self.coordinates[number_player][0]][self.coordinates[number_player][1]] in [-1, 10]:
 			self.est_li_zhizn_na_zemle = False
+
 		else:
 			new_map[self.coordinates[number_player][0], self.coordinates[number_player][1]] = number_player
 			self.viewer(new_map)

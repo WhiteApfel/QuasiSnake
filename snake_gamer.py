@@ -1,5 +1,7 @@
 from copy import deepcopy
 import numpy as np
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from keras import Sequential
 from keras.layers import Dense
 from keras.models import load_model
@@ -14,25 +16,24 @@ class Gamer:
 			print(f"Ошибочка вышла... {e}")
 			self.model = self.create_model
 		self.counter = 0
-		self.step_decode = {1: [-1, -1], 2: [-1, 1], 3: [1, 1], 4: [1, -1]}
+		self.step_decode = {0: [-1, -1], 1: [-1, 1], 2: [1, 1], 3: [1, -1]}
 
 	@property
 	def create_model(self):
 		model = Sequential()
-		model.add(Dense(2222, input_dim=(self.size + 2) ** 2 // 2, activation='relu'))
-		model.add(Dense(1222, activation='relu'))
-		model.add(Dense(222, activation='relu'))
+		model.add(Dense(22, input_dim=(self.size + 2) ** 2 // 2, activation='relu'))
+		model.add(Dense(12, activation='relu'))
+		model.add(Dense(8, activation='relu'))
 		model.add(Dense(4, activation='sigmoid'))
 		model.compile(loss="binary_crossentropy", optimizer="adam", metrics=['accuracy'])  # надо менять
 		return model
 
 	def predict_step(self, map_array) -> int:
 		pred = self.model.predict(np.array([map_array])).tolist()[0]
-		return pred.index(max(pred)) + 1
+		return pred.index(max(pred))
 
 	def get_step(self, map_array) -> list:
-		step = self.predict_step(map_array)
-		return self.step_decode[step]
+		return self.step_decode[self.bdsm(map_array)]
 
 	def counter_steps(self, map_array, my_index, new=True):
 		if new:
@@ -53,12 +54,21 @@ class Gamer:
 	def get_available(map_array):
 		to_return = []
 		loc = map_array.index(-2)
-		to_check = [-5, -4, 6, 5] if (loc // 10) % 2 == 1 else [-6, -5, 5, 4]
+		to_check = [-5, -4, 6, 5] if (loc // 5) % 2 == 1 else [-6, -5, 5, 4]
 		for i in to_check:
-			to_return.append(int(map_array[loc + i] not in [-1, -3]))
+			to_return.append(int(map_array[loc + i] != -1))
 		return to_return
 
 	def bdsm(self, map_array):
 		# TODO: Надо доделать наказание
-		self.model.fit(np.array([map_array]), np.array([self.get_available(map_array)]))
+		need = self.get_available(map_array)
+		ps = self.predict_step(map_array)
+		while ps not in [i for i, x in enumerate(need) if x == 1] and need != [0, 0, 0, 0]:
+			self.model.fit(np.array([map_array]), np.array([need]),verbose=0)
+			ps = self.predict_step(map_array)
+		ps = self.model.predict(np.array([map_array])).tolist()[0]
+		ps = [ps[j] if k else 0 for j, k in enumerate(need)]
 		self.model.save("model.h5")
+		step = ps.index(max(ps))
+		print(need, step, "\n")
+		return step
