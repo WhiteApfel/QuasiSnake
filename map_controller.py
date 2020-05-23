@@ -48,7 +48,7 @@ class MapController:
 		compressed = list()
 		for y in range(0, self.size + 2):
 			for x in range(y % 2, self.size + 2, 2):
-				compressed.append(self.map_history[-1][x][y])
+				compressed.append(self.map_history[-1][y][x])
 		compressed[compressed.index(10)] = -2
 		return compressed
 

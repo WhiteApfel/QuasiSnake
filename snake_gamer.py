@@ -64,11 +64,9 @@ class Gamer:
 		need = self.get_available(map_array)
 		ps = self.predict_step(map_array)
 		while ps not in [i for i, x in enumerate(need) if x == 1] and need != [0, 0, 0, 0]:
-			self.model.fit(np.array([map_array]), np.array([need]),verbose=0)
+			self.model.fit(np.array([map_array]), np.array([need]), verbose=0)
 			ps = self.predict_step(map_array)
 		ps = self.model.predict(np.array([map_array])).tolist()[0]
-		ps = [ps[j] if k else 0 for j, k in enumerate(need)]
 		self.model.save("model.h5")
 		step = ps.index(max(ps))
-		print(need, step, "\n")
 		return step
